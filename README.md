@@ -2,6 +2,8 @@
 
 ## Description
 Given a user-defined plot Storybook will create a video with a story made up by ChatGPT, imagery from DALL-E 2 and voiceover from Amazon Polly.
+#
+Medium article: https://link.medium.com/vBNbQ7jn5xb
 
 #
 ## Requirements
