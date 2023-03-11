@@ -10,10 +10,16 @@ import com.aallam.openai.api.image.ImageSize
 import com.aallam.openai.client.OpenAI
 
 
-class DALLE2Connector {
+class DALLE2Connector(private val openAIToken: String) {
+
+    private var token: String = "Not Set";
+    init {
+        token = openAIToken
+    }
+
     @OptIn(BetaOpenAI::class)
     fun generateImage(storyLine: String, index: Int, callback: BiConsumer<Int, List<String>>) {
-        val openAI = OpenAI("")
+        val openAI = OpenAI(token)
 
         runBlocking {
             val images = openAI.imageURL( // or openAI.imageJSON

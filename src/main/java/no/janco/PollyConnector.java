@@ -15,7 +15,7 @@ public class PollyConnector {
     private final AmazonPollyClient polly;
 
     public PollyConnector(Region region) {
-        // create an Amazon Polly client in a specific region
+        // TODO -- externalize credentials
         polly = new AmazonPollyClient(new DefaultAWSCredentialsProviderChain(),
                 new ClientConfiguration());
         polly.setRegion(region);

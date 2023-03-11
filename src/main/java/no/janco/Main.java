@@ -22,13 +22,26 @@ import static no.janco.Locales.*;
 
 public class Main {
 
-    private static final ChatGPTConnector chatGPTConnector = new ChatGPTConnector();
+    private static ChatGPTConnector chatGPTConnector;
+    private static DALLE2Connector dalle2Connector;
+    private static PollyConnector pollyConnector;
+
+    public static void init(String openAIToken) {
+        chatGPTConnector = new ChatGPTConnector(openAIToken);
+        dalle2Connector = new DALLE2Connector(openAIToken);
+        pollyConnector = new PollyConnector(Region.getRegion(Regions.DEFAULT_REGION));
+    }
 
     public static void main(String[] args) {
-        //String plot = "a green turtle, a brown fox and a yellow duck who go on a quest and become best friends.";
-        String plot = "a super hacker named Frank and his master JC. Frank is on a quest to track down russian super nerd hackers with his sidekick Lester. They travel all around the world while being mentored by their super guru friend JC. All characters are male cacausians in the 30s and all have short, dark hair. The story should have a lot of dark and morbid humor in it and a lot of action.";
+        if (args.length < 2) {
+            throw new RuntimeException("Invalid number of arguments supplied.");
+        }
+        System.out.println(String.format("Token %s - Story %s", args[0], args[1]));
+        final String openAIToken = args[0];
+        final String story = args[1];
+        init(openAIToken);
 
-        chatGPTConnector.getStory(plot, new Consumer<String>() {
+        chatGPTConnector.getStory(story, new Consumer<String>() {
             @Override
             public void accept(String originalStory) {
                 System.out.println("The original story is: " + originalStory);
@@ -39,7 +52,6 @@ public class Main {
                 if (storyLines.size() != pictureLines.size()) {
                     throw new RuntimeException("Wrong amount of picture and story lines!");
                 }
-
 
                 generateStoryImages(pictureLines);
                 writeStoryToFiles(storyLines, LOCALE_ENGLISH);
@@ -52,9 +64,7 @@ public class Main {
     }
 
     private static void translateStoryToOtherLanguages(String originalStory, List<Locale> locales) {
-
         for (Locale currentLocale : locales) {
-
             chatGPTConnector.translateStoryTo(currentLocale, originalStory, new Consumer<String>() {
                 @Override
                 public void accept(String messageContent) {
@@ -67,7 +77,6 @@ public class Main {
                 }
             });
         }
-
     }
 
     private static ArrayList<String> extractStoryLines(String messageContent) {
@@ -102,11 +111,9 @@ public class Main {
             videoParts.add("./generated/" + i + "_" + videoLocale.getCountry() + ".mp4");
         }
         FFmpegConnector.stitchVideos(videoParts, "./generated/output_" + videoLocale.getCountry() + ".mp4");
-
     }
 
     private static void generateVoiceForStory(ArrayList<String> storyLines, Locale voiceLocale) {
-        PollyConnector pollyConnector = new PollyConnector(Region.getRegion(Regions.DEFAULT_REGION));
         for (int i = 0; i < storyLines.size(); i = i + 1) {
             try {
                 InputStream generatedVoice = pollyConnector.synthesize(storyLines.get(i), OutputFormat.Mp3, voiceLocale);
@@ -120,8 +127,6 @@ public class Main {
     }
 
     private static void generateStoryImages(ArrayList<String> storyLines) {
-        DALLE2Connector dalle2Connector = new DALLE2Connector();
-
         for (int i = 0; i < storyLines.size(); i = i + 1) {
             dalle2Connector.generateImage(storyLines.get(i), i, new BiConsumer<>() {
                 @Override
@@ -158,7 +163,6 @@ public class Main {
         return imageURIs.get(chosenImageIndex);
     }
 
-
     private static void writeStoryToFiles(ArrayList<String> storyLines, Locale locale) {
         for (int i = 0; i < storyLines.size(); i++) {
             String filename = "./generated/" + i + "_" + locale.getCountry() + ".txt";
@@ -185,6 +189,4 @@ public class Main {
         outputStream.close();
         inputStream.close();
     }
-
-
 }

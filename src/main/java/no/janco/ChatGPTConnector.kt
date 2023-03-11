@@ -10,18 +10,22 @@ import com.aallam.openai.client.OpenAI
 import kotlinx.coroutines.runBlocking
 import java.util.function.Consumer
 
-class ChatGPTConnector {
+class ChatGPTConnector(private val openAIToken: String) {
+
+    private var token: String = "Not Set";
+    init {
+        token = openAIToken
+    }
 
     @OptIn(BetaOpenAI::class)
     fun getStory(plot: String, callback: Consumer<String>) {
-        val openAI = OpenAI("")
+        val openAI = OpenAI(token)
         val chatCompletionRequest = ChatCompletionRequest(
             model = ModelId("gpt-3.5-turbo"),
             messages = listOf(
                 ChatMessage(
                     role = ChatRole.User,
                     content = "Write me an epic story about $plot. For each paragraph in the story I want you to write a single paragraph beneath it with a single line containing keywords describing the color and species of all characters in the previous paragraph as well as key items. Do not mention their names. This paragraph should always start with Picture:"
-
 //                    content = "Pretend that I am a 5 year old. Write me a good night story about $plot. For each paragraph in the story I want you to write a single paragraph beneath it with a single line containing keywords describing the color and species of all characters in the previous paragraph as well as key items. Do not mention their names. This paragraph should always start with Picture:"
                 )
             )
@@ -36,7 +40,7 @@ class ChatGPTConnector {
 
     @OptIn(BetaOpenAI::class)
     fun translateStoryTo(locale: Locale, originalStory: String, callback: Consumer<String>) {
-        val openAI = OpenAI("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")
+        val openAI = OpenAI(token)
         val chatCompletionRequest = ChatCompletionRequest(
             model = ModelId("gpt-3.5-turbo"),
             messages = listOf(

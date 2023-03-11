@@ -1,0 +1,36 @@
+@startuml
+title Storybook
+
+actor User
+participant Storybook
+participant ChatGPT
+participant DALLE as "Dall-E 2"
+participant Polly as "Amazon Polly"
+participant FFMPEG
+
+User -> Storybook: Provides openAI token + plot
+Storybook -> ChatGPT: Provides plot and requests a story
+ChatGPT -> Storybook: Returns a story
+
+activate "Storybook"
+
+"Storybook" -> ChatGPT: Requests a story for the plot
+ChatGPT -> "Storybook":" Returns a story
+
+loop for each paragraph in the story
+    "Storybook" -> DALLE: Requests an image of the paragraph
+    DALLE -> "Storybook": Returns an image
+    "Storybook" -> Polly: Requests text-to-audio of the paragraph
+    Polly -> "Storybook": Returns audio
+    Storybook -> FFMPEG: Creates a video of the image and audio
+    FFMPEG -> Storybook: Returns a video with audio
+end
+
+"Storybook" -> FFMPEG: Combines all generated videos
+FFMPEG -> "Storybook": Returns combinedvideo
+
+deactivate "Storybook"
+
+User <- "Storybook": Returns video
+
+@endumlx
